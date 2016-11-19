@@ -79,6 +79,36 @@ public class Lanterna implements Runnable {
         }
     }
 
+    public void rePaintMyGrid2() {
+        System.out.println("painting grid");
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                myLabelsMatrix[j][i].setBackgroundColor(getColor(player.getMyGrid()[j][i].getType()));
+            }
+        }
+    }
+
+    private TextColor getColor(char c){
+        TextColor color;
+        switch (c){
+            case 'S':
+                color = new TextColor.RGB(172, 126, 250);
+                break;
+            case 'H':
+                color = TextColor.ANSI.YELLOW;
+                break;
+            case 'C':
+                color = TextColor.ANSI.RED;
+                break;
+            case 'M':
+                color = TextColor.ANSI.BLACK;
+                break;
+            default:
+                color = new TextColor.RGB(72, 116, 250);
+        }
+        return color;
+    }
+
     public void rePaintEnemyGrid(Position position) {
         position = new Position((position.getCol() * 2) + 1, position.getRow());
      /*   TextColor color;

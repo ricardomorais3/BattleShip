@@ -81,10 +81,13 @@ public class Player {
             }
             lanterna.rePaintEnemyGrid(myPos);
 
+            int count=0;
 
             while (true) {
                 myGrid = (Position[][]) in.readObject();
-                lanterna.rePaintMyGrid(new Position(0,0),1,true);
+                System.out.println(myGrid);
+                lanterna.rePaintMyGrid2();
+
                 // repaint
                 canShoot = true;
                 lanterna.changePanelTitle("It's your turn");
@@ -119,9 +122,11 @@ public class Player {
         if (collisonDetectorInShooting()) {
             canShoot = false;
             lanterna.changePanelTitle("It's your enemy's turn");
+            System.out.println(enemyGrid[myPos.getCol()][myPos.getRow()].getType());
 
             enemyGrid[myPos.getCol()][myPos.getRow()].setType(Object.getReverse(enemyGrid[myPos.getCol()][myPos.getRow()].getType()));
 
+            System.out.println(enemyGrid[myPos.getCol()][myPos.getRow()].getType());
             //repaint
             lanterna.rePaintEnemyGrid(myPos);
 

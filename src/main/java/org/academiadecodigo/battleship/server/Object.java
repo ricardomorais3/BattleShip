@@ -21,8 +21,8 @@ public enum Object {
         return symbol;
     }
 
-    public static char getReverse(char symbol){
-        switch (symbol){
+    public static char getReverse(char c){
+        switch (c){
             case 'S':
                 return 'H';
             case 'W':
