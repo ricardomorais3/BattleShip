@@ -1,11 +1,8 @@
 package org.academiadecodigo.battleship.player;
 
-import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.gui2.*;
-import com.googlecode.lanterna.input.KeyStroke;
-import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
@@ -13,13 +10,12 @@ import com.googlecode.lanterna.terminal.Terminal;
 import org.academiadecodigo.battleship.Position;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by codecadet on 18/11/16.
  */
 public class Lanterna implements Runnable {
+
     private Terminal terminal;
     private Screen screen;
     private Label[][] labelsMatrix;
@@ -28,7 +24,6 @@ public class Lanterna implements Runnable {
     public Lanterna(Player player){
         this.player = player;
     }
-
 
    /* public void teste() {
         if (horizontal) {
@@ -68,6 +63,7 @@ public class Lanterna implements Runnable {
     }*/
 
     public void rePaint(Position position, int boatSize, boolean isHorizontal){
+
         position = new Position((position.getCol()*2)+1, position.getRow());
 
         if (isHorizontal) {
@@ -81,8 +77,12 @@ public class Lanterna implements Runnable {
                         }
                         j += boatSize - 1;
                     } else {
-                        labelsMatrix[j][i].setText("  ");
-                        labelsMatrix[j][i].setBackgroundColor(new TextColor.RGB(72, 116, 250));
+                        if (player.getGrid()[j][i].getType() == 'S'){
+                            labelsMatrix[j][i].setBackgroundColor(new TextColor.RGB(172, 126, 250));
+                        }else {
+                            labelsMatrix[j][i].setText("  ");
+                            labelsMatrix[j][i].setBackgroundColor(new TextColor.RGB(72, 116, 250));
+                        }
                     }
                 }
             }
@@ -97,15 +97,17 @@ public class Lanterna implements Runnable {
                         }
                         j += boatSize - 1;
                     } else {
-                        labelsMatrix[i][j].setText("  ");
-                        labelsMatrix[i][j].setBackgroundColor(new TextColor.RGB(72, 116, 250));
+                        if(player.getGrid()[i][j].getType() == 'S'){
+                            labelsMatrix[i][j].setBackgroundColor(new TextColor.RGB(172, 126, 250));
+                        }else{
+                            labelsMatrix[i][j].setText("  ");
+                            labelsMatrix[i][j].setBackgroundColor(new TextColor.RGB(72, 116, 250));
+                        }
                     }
                 }
             }
         }
-
     }
-
 
     public Screen getScreen() {
         return screen;
@@ -114,22 +116,15 @@ public class Lanterna implements Runnable {
     @Override
     public void run() {
         try {
+
             terminal = new DefaultTerminalFactory().createTerminal();
-
             screen = new TerminalScreen(terminal);
-
             screen.startScreen();
-
-
-
 
             Panel panel = new Panel();
             panel.setLayoutManager(new GridLayout(10).setHorizontalSpacing(0));
             panel.withBorder(Borders.doubleLine());
             panel.setPreferredSize(new TerminalSize(30, 10));
-
-
-
 
             labelsMatrix = new Label[10][10];
             //rows
@@ -141,13 +136,13 @@ public class Lanterna implements Runnable {
                 }
             }
 
-            labelsMatrix[0][0].setBackgroundColor(TextColor.ANSI.RED);
-
+            for (int i = 0; i < player.getShipSize(); i++) {
+                labelsMatrix[i][0].setBackgroundColor(TextColor.ANSI.RED);
+            }
 
             BasicWindow window = new BasicWindow();
 
             window.setComponent(panel);
-
 
             MultiWindowTextGUI gui = new MultiWindowTextGUI(screen, new DefaultWindowManager(), new EmptySpace(TextColor.ANSI.RED));
 
@@ -156,6 +151,7 @@ public class Lanterna implements Runnable {
             keyboard.start();
 
             gui.addWindowAndWait(window);
+
         } catch (IOException e) {
             e.printStackTrace();
         }

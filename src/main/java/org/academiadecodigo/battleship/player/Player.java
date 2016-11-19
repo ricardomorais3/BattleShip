@@ -1,7 +1,5 @@
 package org.academiadecodigo.battleship.player;
 
-import com.googlecode.lanterna.TerminalPosition;
-import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import org.academiadecodigo.battleship.server.Object;
 import org.academiadecodigo.battleship.Position;
@@ -23,7 +21,7 @@ public class Player {
     private boolean horizontal;
     private Position myPos;
     private Lanterna lanterna;
-    private int boatSize;
+    private int shipSize;
     private KeyboardHandler keyboardHandler;
 
 
@@ -49,6 +47,7 @@ public class Player {
                     System.out.println("another type");
                 }
             }*/
+
             String message = (String)in.readObject();
             System.out.println(message);
             message = (String)in.readObject();
@@ -63,9 +62,8 @@ public class Player {
             gfx.start();
 
             System.out.println("i'm here");
-            boatSize = 3;
+            shipSize = 3;
             horizontal = true;
-
 
             in.read();
 
@@ -78,7 +76,7 @@ public class Player {
     }
 
 
-    private void placeShips(Position position, boolean isHorizontal, int shipSize, Position[][] grid) {
+    public void placeShip(Position position, boolean isHorizontal, int shipSize, Position[][] grid) {
         for (int i = 0; i < shipSize; i++) {
             if (isHorizontal) {
                 grid[position.getCol() + i][position.getRow()].setType(Object.SHIP.getSymbol());
@@ -110,71 +108,97 @@ public class Player {
 
 
     public boolean outOfBounds(KeyType key) {
+
         if (horizontal) {
             if (key.equals(KeyType.ArrowDown)) {
                 if (myPos.getRow() < 9) {
                     myPos = new Position(myPos.getCol(), myPos.getRow() + 1);
-                    return true;
+                    return false;
                 }
             } else if (key.equals(KeyType.ArrowRight)) {
-                if ((myPos.getCol() + (boatSize) - 1) < 9) {
+                if ((myPos.getCol() + (shipSize) - 1) < 9) {
                     myPos = new Position(myPos.getCol() + 1, myPos.getRow());
-                    return true;
+                    return false;
                 }
             } else if (key.equals(KeyType.ArrowLeft)) {
                 if (myPos.getCol() > 0) {
                     myPos = new Position(myPos.getCol() - 1, myPos.getRow());
-                    return true;
+                    return false;
                 }
             } else if (key.equals(KeyType.ArrowUp)) {
                 if (myPos.getRow() > 0) {
                     myPos = new Position(myPos.getCol(), myPos.getRow() - 1);
-                    return true;
+                    return false;
                 }
             } else if (key.equals(KeyType.Tab)) {
-                if (((myPos.getRow() + (boatSize) - 1) < 10) && myPos.getRow() >= 0) {
+                if (((myPos.getRow() + (shipSize) - 1) < 10) && myPos.getRow() >= 0) {
                     horizontal = !horizontal;
-                    return true;
+                    return false;
                 }
             }
-            return false;
+            return true;
         } else {
             if (key.equals(KeyType.ArrowDown)) {
-                if ((myPos.getRow() + (boatSize) - 1) < 9) {
+                if ((myPos.getRow() + (shipSize) - 1) < 9) {
                     myPos = new Position(myPos.getCol(), myPos.getRow() + 1);
-                    return true;
+                    return false;
                 }
-
             } else if (key.equals(KeyType.ArrowRight)) {
                 if (myPos.getCol() < 9) {
                     myPos = new Position(myPos.getCol() + 1, myPos.getRow());
-                    return true;
+                    return false;
                 }
             } else if (key.equals(KeyType.ArrowLeft)) {
                 if (myPos.getCol() > 0) {
                     myPos = new Position(myPos.getCol() - 1, myPos.getRow());
-                    return true;
+                    return false;
                 }
             } else if (key.equals(KeyType.ArrowUp)) {
                 if (myPos.getRow() > 0) {
                     myPos = new Position(myPos.getCol(), myPos.getRow() - 1);
-                    return true;
+                    return false;
                 }
             } else if (key.equals(KeyType.Tab)) {
-                if ((myPos.getCol() + (boatSize) - 1) < 10 && myPos.getCol() >= 0) {
+                if ((myPos.getCol() + (shipSize) - 1) < 10 && myPos.getCol() >= 0) {
                     horizontal = !horizontal;
-                    return true;
+                    return false;
                 }
             }
-            return false;
+            return true;
         }
     }
 
     public void moveCursor(KeyType keyType){
-        if(outOfBounds(keyType)){
-            System.out.println(myPos.getCol() + " " + myPos.getRow());
-            lanterna.rePaint(myPos, boatSize, horizontal);
+        if(keyType.equals(KeyType.Enter)){
+            if(!collisionDetector(myPos, horizontal, shipSize, grid)){
+                placeShip(myPos, horizontal, shipSize, grid);
+                lanterna.rePaint(myPos, shipSize, horizontal);
+            }
+            return;
         }
+        if(!outOfBounds(keyType)){
+            System.out.println(myPos.getCol() + " " + myPos.getRow());
+            lanterna.rePaint(myPos, shipSize, horizontal);
+        }
+    }
+
+    private boolean collisionDetector(Position position, boolean isHorizontal, int shipSize, Position[][] grid){
+        if(isHorizontal){
+            for (int i = 0; i < shipSize; i++) {
+                if((grid[position.getCol() + i][position.getRow()].getType() == 'W')){
+                    continue;
+                }
+                return true;
+            }
+        }else{
+            for (int i = 0; i < shipSize; i++) {
+                if((grid[position.getCol()][position.getRow() + i].getType() == 'W')){
+                    continue;
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
     public Position getMyPos() {
@@ -185,7 +209,11 @@ public class Player {
         this.myPos = myPos;
     }
 
-    public int getBoatSize() {
-        return boatSize;
+    public int getShipSize() {
+        return shipSize;
+    }
+
+    public Position[][] getGrid() {
+        return grid;
     }
 }
