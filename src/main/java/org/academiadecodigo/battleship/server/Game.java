@@ -35,12 +35,15 @@ public class Game {
     public void updateGrid(Position[][] grid) {
         if(Thread.currentThread().getName().equals("Player1")){
             p2Grid = grid;
+            playerHandler2.sendGrid(p2Grid);
         }else {
             p1Grid = grid;
+            playerHandler1.sendGrid(p1Grid);
         }
     }
 
     public synchronized void initialGrid(Position[][] grid){
+        System.out.println(Thread.currentThread().getName());
         if(Thread.currentThread().getName().equals("Player1")){
             p1Grid = grid;
             startShooting = !startShooting;
@@ -50,16 +53,20 @@ public class Game {
         }
 
         if (startShooting){
-
+            sendTurn();
         }
     }
 
     private void sendTurn(){
         if(Math.random() < 0.5){
             playerHandler1.sendMessage(true);
+            playerHandler1.sendMessage(true);
             playerHandler2.sendMessage(false);
+            playerHandler2.sendMessage(true);
         }else {
             playerHandler1.sendMessage(false);
+            playerHandler1.sendMessage(true);
+            playerHandler2.sendMessage(true);
             playerHandler2.sendMessage(true);
         }
 

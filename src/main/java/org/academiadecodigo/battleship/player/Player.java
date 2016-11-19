@@ -25,6 +25,7 @@ public class Player {
     private final int NUMSHIPS;
     private int shipsCreated;
     private boolean canShoot;
+    private boolean startGame;
 
     public Player() {
         NUMSHIPS = 4;
@@ -69,11 +70,14 @@ public class Player {
             gfx.start();
 
             canShoot = (boolean) in.readObject();
+            startGame = (boolean) in.readObject();
             enemyGrid = (Position[][]) in.readObject();
-           lanterna.changeMainPanel();
+
+
 
             while (true) {
-                enemyGrid = (Position[][]) in.readObject();
+                myGrid = (Position[][]) in.readObject();
+                lanterna.rePaintMyGrid(new Position(0,0),1,true);
                 // repaint
                 canShoot = true;
             }
@@ -99,15 +103,17 @@ public class Player {
 
     public void shoot() {
         //TODO: myGrid = Objects.getSymbol();
-        if (!canShoot) {
+        if (!canShoot || !startGame) {
             return;
         }
 
         if (collisonDetectorInShooting()) {
             canShoot = false;
-            enemyGrid[myPos.getCol()][myPos.getRow()].setType(Object.SHIP.getReverse());
+
+            enemyGrid[myPos.getCol()][myPos.getRow()].setType(Object.getReverse(enemyGrid[myPos.getCol()][myPos.getRow()].getType()));
 
             //repaint
+            lanterna.rePaintEnemyGrid(myPos);
 
             try {
                 out.writeObject(enemyGrid);
@@ -194,8 +200,16 @@ public class Player {
 
     public void moveCursor(KeyType keyType) {
         if (!outOfBounds(keyType)) {
-            //System.out.println(myPos.getCol() + " " + myPos.getRow());
-            lanterna.rePaint(myPos, shipSize, horizontal);
+
+            if (lanterna.getKeyboardHandler().isCreatingGrid()){
+                lanterna.rePaintMyGrid(myPos, shipSize, horizontal);
+            }
+            else {
+                if (startGame){
+                    lanterna.rePaintEnemyGrid(myPos);
+                }
+            }
+
         }
     }
 
@@ -256,8 +270,12 @@ public class Player {
                         e.printStackTrace();
                     }
                 }
-                lanterna.rePaint(myPos, shipSize, horizontal);
+                lanterna.rePaintMyGrid(myPos, shipSize, horizontal);
             }
         }
+    }
+
+    public Position[][] getEnemyGrid() {
+        return enemyGrid;
     }
 }

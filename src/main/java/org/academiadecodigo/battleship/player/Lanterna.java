@@ -31,7 +31,7 @@ public class Lanterna implements Runnable {
         this.player = player;
     }
 
-    public void rePaint(Position position, int boatSize, boolean isHorizontal) {
+    public void rePaintMyGrid(Position position, int boatSize, boolean isHorizontal) {
 
         position = new Position((position.getCol() * 2) + 1, position.getRow());
 
@@ -78,6 +78,48 @@ public class Lanterna implements Runnable {
         }
     }
 
+    public void rePaintEnemyGrid(Position position) {
+        position = new Position((position.getCol() * 2) + 1, position.getRow());
+     /*   TextColor color;
+
+        switch (player.getEnemyGrid()[position.getCol()][position.getRow()].getType()){
+            case 'M':
+                color = TextColor.ANSI.CYAN;
+                break;
+            case 'H':
+                color = TextColor.ANSI.YELLOW;
+                break;
+            case 'C':
+                color = TextColor.ANSI.RED;
+                break;
+            default:
+                color = new TextColor.RGB(72, 116, 250);
+        }*/
+
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                if (enemyLabelsMatrix[j][i].getPosition().getColumn() == position.getCol()
+                        && enemyLabelsMatrix[j][i].getPosition().getRow() == position.getRow()) {
+
+                    enemyLabelsMatrix[j][i].setText("  ");
+                    enemyLabelsMatrix[j][i].setBackgroundColor(TextColor.ANSI.RED);
+
+                } else {
+                    if (player.getEnemyGrid()[j][i].getType() == 'S') {
+                        enemyLabelsMatrix[j][i].setBackgroundColor(TextColor.ANSI.BLUE);
+                    }else if(player.getEnemyGrid()[j][i].getType() == 'H'){
+                        enemyLabelsMatrix[j][i].setBackgroundColor(TextColor.ANSI.YELLOW);
+                    }else if(player.getEnemyGrid()[j][i].getType() == 'M'){
+                        enemyLabelsMatrix[j][i].setBackgroundColor(TextColor.ANSI.CYAN);
+                    }else {
+                        enemyLabelsMatrix[j][i].setBackgroundColor(TextColor.ANSI.BLACK);
+                    }
+                }
+            }
+        }
+    }
+
+
     public Screen getScreen() {
         return screen;
     }
@@ -97,19 +139,17 @@ public class Lanterna implements Runnable {
             rightPanel = new Panel();
             rightPanel.setLayoutManager(new GridLayout(10).setHorizontalSpacing(0));
             rightPanel.withBorder(Borders.doubleLine());
-            rightPanel.setPreferredSize(new TerminalSize(30, 10));
+            rightPanel.setPreferredSize(new TerminalSize(22, 10));
 
             leftPanel = new Panel();
             leftPanel.setLayoutManager(new GridLayout(10).setHorizontalSpacing(0));
-            leftPanel.withBorder(Borders.doubleLine());
-            leftPanel.setPreferredSize(new TerminalSize(30, 10));
+            leftPanel.withBorder(Borders.doubleLine("MyGrid"));
+            leftPanel.setPreferredSize(new TerminalSize(22, 10));
 
-            
 
             mainPanel.setLayoutManager(new LinearLayout(Direction.HORIZONTAL));
-            mainPanel.addComponent(leftPanel);
-            mainPanel.addComponent(new Label("Create Field"));
-            mainPanel.addComponent(rightPanel);
+            mainPanel.addComponent(leftPanel.withBorder(Borders.singleLine("MyGrid")));
+            mainPanel.addComponent(rightPanel.withBorder(Borders.singleLine("EnemyGrid")));
 
             myLabelsMatrix = new Label[10][10];
             enemyLabelsMatrix = new Label[10][10];
@@ -131,7 +171,7 @@ public class Lanterna implements Runnable {
 
             BasicWindow window = new BasicWindow();
 
-            window.setComponent(mainPanel);
+            window.setComponent(mainPanel.withBorder(Borders.singleLine("Populate your grid")));
 
             MultiWindowTextGUI gui = new MultiWindowTextGUI(screen, new DefaultWindowManager(), new EmptySpace(TextColor.ANSI.RED));
 
@@ -154,6 +194,18 @@ public class Lanterna implements Runnable {
         mainPanel.removeAllComponents();
         mainPanel.addComponent(rightPanel);
         mainPanel.addComponent(leftPanel);
+    }
+
+    public Panel getMainPanel() {
+        return mainPanel;
+    }
+
+    public Panel getLeftPanel() {
+        return leftPanel;
+    }
+
+    public Panel getRightPanel() {
+        return rightPanel;
     }
 
     /* public void teste() {

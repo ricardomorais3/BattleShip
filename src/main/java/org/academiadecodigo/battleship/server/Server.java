@@ -45,6 +45,7 @@ public class Server {
             // Create a player handler for Player 1, which will run on a new thread
             PlayerHandler playerHandler = new PlayerHandler(clientSocket);
             Thread thread = new Thread(playerHandler);
+            thread.setName("Player1");
             thread.start();
 
             // Program stops here, waiting for Player 2 to connect
@@ -55,14 +56,18 @@ public class Server {
             // Create a player handler for Player 1, which will run on a new thread
             PlayerHandler playerHandler2 = new PlayerHandler(clientSocket);
             Thread thread2 = new Thread(playerHandler2);
+            thread2.setName("Player2");
             thread2.start();
 
+            Thread.sleep(1000);
             game = new Game(playerHandler,playerHandler2);
             game.startGame();
 
 
 
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }

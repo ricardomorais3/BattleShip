@@ -21,11 +21,11 @@ public enum Object {
         return symbol;
     }
 
-    public char getReverse(){
-        switch (this){
-            case SHIP:
+    public static char getReverse(char symbol){
+        switch (symbol){
+            case 'S':
                 return 'H';
-            case WATER:
+            case 'W':
                 return 'M';
             default:
                 return 'A';

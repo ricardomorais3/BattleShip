@@ -143,5 +143,9 @@ public class KeyboardHandler implements Runnable {
     public void setCreatingGrid(boolean creatingGrid) {
         this.creatingGrid = creatingGrid;
     }
+
+    public boolean isCreatingGrid() {
+        return creatingGrid;
+    }
 }
 
