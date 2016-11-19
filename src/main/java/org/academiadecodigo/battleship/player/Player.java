@@ -1,5 +1,6 @@
 package org.academiadecodigo.battleship.player;
 
+import com.googlecode.lanterna.gui2.Borders;
 import com.googlecode.lanterna.input.KeyType;
 import org.academiadecodigo.battleship.server.Object;
 import org.academiadecodigo.battleship.Position;
@@ -73,6 +74,12 @@ public class Player {
             startGame = (boolean) in.readObject();
             enemyGrid = (Position[][]) in.readObject();
 
+            if(canShoot){
+                lanterna.changePanelTitle("It's your turn");
+            }else {
+                lanterna.changePanelTitle("It's your enemy's turn");
+            }
+            lanterna.rePaintEnemyGrid(myPos);
 
 
             while (true) {
@@ -80,6 +87,8 @@ public class Player {
                 lanterna.rePaintMyGrid(new Position(0,0),1,true);
                 // repaint
                 canShoot = true;
+                lanterna.changePanelTitle("It's your turn");
+
             }
 
         } catch (IOException e) {
@@ -109,6 +118,7 @@ public class Player {
 
         if (collisonDetectorInShooting()) {
             canShoot = false;
+            lanterna.changePanelTitle("It's your enemy's turn");
 
             enemyGrid[myPos.getCol()][myPos.getRow()].setType(Object.getReverse(enemyGrid[myPos.getCol()][myPos.getRow()].getType()));
 
@@ -265,6 +275,7 @@ public class Player {
                     shipSize = 1;
                     lanterna.getKeyboardHandler().setCreatingGrid(false);
                     try {
+                        lanterna.changePanelTitle("Waiting for your enemy...");
                         out.writeObject(myGrid);
                     } catch (IOException e) {
                         e.printStackTrace();

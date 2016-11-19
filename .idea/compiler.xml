@@ -22,11 +22,11 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
-        <module name="BattleShipMaven" />
+        <module name="battleship" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="BattleShipMaven" target="1.8" />
+      <module name="battleship" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

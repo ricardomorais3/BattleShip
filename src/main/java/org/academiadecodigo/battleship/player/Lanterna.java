@@ -25,6 +25,7 @@ public class Lanterna implements Runnable {
     private Panel mainPanel;
     private Panel leftPanel;
     private Panel rightPanel;
+    private BasicWindow window;
 
 
     public Lanterna(Player player) {
@@ -112,7 +113,7 @@ public class Lanterna implements Runnable {
                     }else if(player.getEnemyGrid()[j][i].getType() == 'M'){
                         enemyLabelsMatrix[j][i].setBackgroundColor(TextColor.ANSI.CYAN);
                     }else {
-                        enemyLabelsMatrix[j][i].setBackgroundColor(TextColor.ANSI.BLACK);
+                        enemyLabelsMatrix[j][i].setBackgroundColor(TextColor.ANSI.BLUE);
                     }
                 }
             }
@@ -169,9 +170,10 @@ public class Lanterna implements Runnable {
                 myLabelsMatrix[i][0].setBackgroundColor(TextColor.ANSI.RED);
             }
 
-            BasicWindow window = new BasicWindow();
+            window = new BasicWindow();
 
             window.setComponent(mainPanel.withBorder(Borders.singleLine("Populate your grid")));
+
 
             MultiWindowTextGUI gui = new MultiWindowTextGUI(screen, new DefaultWindowManager(), new EmptySpace(TextColor.ANSI.RED));
 
@@ -190,10 +192,9 @@ public class Lanterna implements Runnable {
         return keyboardHandler;
     }
 
-    public void changeMainPanel() {
-        mainPanel.removeAllComponents();
-        mainPanel.addComponent(rightPanel);
-        mainPanel.addComponent(leftPanel);
+    public void changePanelTitle(String title) {
+        window.setComponent(mainPanel.withBorder(Borders.singleLine(title)));
+
     }
 
     public Panel getMainPanel() {
@@ -206,6 +207,10 @@ public class Lanterna implements Runnable {
 
     public Panel getRightPanel() {
         return rightPanel;
+    }
+
+    public BasicWindow getWindow() {
+        return window;
     }
 
     /* public void teste() {
