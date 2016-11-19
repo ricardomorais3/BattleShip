@@ -16,14 +16,21 @@ public class Player {
     private Socket socket;
     private ObjectOutputStream out;
     private ObjectInputStream in;
-    private BufferedReader keyBoardInput;
-    private Position[][] grid;
+    private Position[][] myGrid;
+    private Position[][] enemyGrid;
     private boolean horizontal;
     private Position myPos;
     private Lanterna lanterna;
     private int shipSize;
-    private KeyboardHandler keyboardHandler;
+    private final int NUMSHIPS;
+    private int shipsCreated;
+    private boolean canShoot;
 
+    public Player() {
+        NUMSHIPS = 4;
+        shipSize = 1;
+        horizontal = true;
+    }
 
     public static void main(String[] args) {
         Player player = new Player();
@@ -36,8 +43,7 @@ public class Player {
             socket = new Socket(InetAddress.getByName("localhost"), 2000);
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
-            keyBoardInput = new BufferedReader(new InputStreamReader(System.in));
-            myPos = new Position(0,0);
+            myPos = new Position(0, 0);
 
            /* while (true) {
                 java.lang.Object object = in.readObject();
@@ -48,24 +54,29 @@ public class Player {
                 }
             }*/
 
-            String message = (String)in.readObject();
-            System.out.println(message);
-            message = (String)in.readObject();
+            String message = (String) in.readObject();
             System.out.println(message);
 
-            grid = new Position[10][10];
+            message = (String) in.readObject();
+            System.out.println(message);
 
-            createGrid(grid);
+            myGrid = new Position[10][10];
+
+            createGrid(myGrid);
 
             lanterna = new Lanterna(this);
             Thread gfx = new Thread(lanterna);
             gfx.start();
 
-            System.out.println("i'm here");
-            shipSize = 3;
-            horizontal = true;
+            canShoot = (boolean) in.readObject();
+            enemyGrid = (Position[][]) in.readObject();
+           lanterna.changeMainPanel();
 
-            in.read();
+            while (true) {
+                enemyGrid = (Position[][]) in.readObject();
+                // repaint
+                canShoot = true;
+            }
 
         } catch (IOException e) {
             System.out.println("Server hasn't answered the connection.");
@@ -74,7 +85,6 @@ public class Player {
             e.printStackTrace();
         }
     }
-
 
     public void placeShip(Position position, boolean isHorizontal, int shipSize, Position[][] grid) {
         for (int i = 0; i < shipSize; i++) {
@@ -87,15 +97,30 @@ public class Player {
         }
     }
 
-    private void hitShip(int col, int row) {
+    public void shoot() {
+        //TODO: myGrid = Objects.getSymbol();
+        if (!canShoot) {
+            return;
+        }
 
-        //TODO: grid = Objects.getSymbol();
-        grid[row][col].setType(Object.SHIP.getReverse());
+        if (collisonDetectorInShooting()) {
+            canShoot = false;
+            enemyGrid[myPos.getCol()][myPos.getRow()].setType(Object.SHIP.getReverse());
+
+            //repaint
+
+            try {
+                out.writeObject(enemyGrid);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     private void shipDestroyed(int row, int col) {
         // TODO: 18/11/16 change all elementes of the ship to a new one
-        grid[row][col].setType(Object.SHIP_CRASHED.getSymbol());
+        myGrid[row][col].setType(Object.SHIP_CRASHED.getSymbol());
     }
 
     public void createGrid(Position[][] grid) {
@@ -105,7 +130,6 @@ public class Player {
             }
         }
     }
-
 
     public boolean outOfBounds(KeyType key) {
 
@@ -168,37 +192,35 @@ public class Player {
         }
     }
 
-    public void moveCursor(KeyType keyType){
-        if(keyType.equals(KeyType.Enter)){
-            if(!collisionDetector(myPos, horizontal, shipSize, grid)){
-                placeShip(myPos, horizontal, shipSize, grid);
-                lanterna.rePaint(myPos, shipSize, horizontal);
-            }
-            return;
-        }
-        if(!outOfBounds(keyType)){
-            System.out.println(myPos.getCol() + " " + myPos.getRow());
+    public void moveCursor(KeyType keyType) {
+        if (!outOfBounds(keyType)) {
+            //System.out.println(myPos.getCol() + " " + myPos.getRow());
             lanterna.rePaint(myPos, shipSize, horizontal);
         }
     }
 
-    private boolean collisionDetector(Position position, boolean isHorizontal, int shipSize, Position[][] grid){
-        if(isHorizontal){
+    private boolean collisionDetectorInPlacement(boolean isHorizontal, int shipSize) {
+        if (isHorizontal) {
             for (int i = 0; i < shipSize; i++) {
-                if((grid[position.getCol() + i][position.getRow()].getType() == 'W')){
+                if ((myGrid[myPos.getCol() + i][myPos.getRow()].getType() == 'W')) {
                     continue;
                 }
                 return true;
             }
-        }else{
+        } else {
             for (int i = 0; i < shipSize; i++) {
-                if((grid[position.getCol()][position.getRow() + i].getType() == 'W')){
+                if ((myGrid[myPos.getCol()][myPos.getRow() + i].getType() == 'W')) {
                     continue;
                 }
                 return true;
             }
         }
         return false;
+    }
+
+    private boolean collisonDetectorInShooting() {
+        return (enemyGrid[myPos.getCol()][myPos.getRow()].getType() == 'W' ||
+                enemyGrid[myPos.getCol()][myPos.getRow()].getType() == 'S');
     }
 
     public Position getMyPos() {
@@ -213,7 +235,29 @@ public class Player {
         return shipSize;
     }
 
-    public Position[][] getGrid() {
-        return grid;
+    public Position[][] getMyGrid() {
+        return myGrid;
+    }
+
+    public void shipPlacement() {
+        if (shipsCreated < NUMSHIPS) {
+            if (!collisionDetectorInPlacement(horizontal, shipSize)) {
+                placeShip(myPos, horizontal, shipSize, myGrid);
+                shipsCreated++;
+                shipSize++;
+                myPos.setCol(0);
+                myPos.setRow(0);
+                if (shipsCreated == NUMSHIPS) {
+                    shipSize = 1;
+                    lanterna.getKeyboardHandler().setCreatingGrid(false);
+                    try {
+                        out.writeObject(myGrid);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                lanterna.rePaint(myPos, shipSize, horizontal);
+            }
+        }
     }
 }

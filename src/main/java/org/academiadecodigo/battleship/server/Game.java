@@ -11,10 +11,12 @@ public class Game {
     private PlayerHandler playerHandler2;
     private Position[][] p1Grid;
     private Position[][] p2Grid;
+    private boolean startShooting;
 
     public Game(PlayerHandler playerHandler1, PlayerHandler playerHandler2) {
         this.playerHandler1 = playerHandler1;
         this.playerHandler2 = playerHandler2;
+        startShooting = true;
     }
 
 
@@ -41,8 +43,27 @@ public class Game {
     public synchronized void initialGrid(Position[][] grid){
         if(Thread.currentThread().getName().equals("Player1")){
             p1Grid = grid;
+            startShooting = !startShooting;
         }else {
             p2Grid = grid;
+            startShooting = !startShooting;
         }
+
+        if (startShooting){
+
+        }
+    }
+
+    private void sendTurn(){
+        if(Math.random() < 0.5){
+            playerHandler1.sendMessage(true);
+            playerHandler2.sendMessage(false);
+        }else {
+            playerHandler1.sendMessage(false);
+            playerHandler2.sendMessage(true);
+        }
+
+        playerHandler1.sendGrid(p2Grid);
+        playerHandler2.sendGrid(p1Grid);
     }
 }

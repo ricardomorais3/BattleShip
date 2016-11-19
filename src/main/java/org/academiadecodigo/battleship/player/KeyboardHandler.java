@@ -11,13 +11,13 @@ public class KeyboardHandler implements Runnable {
 
     private Lanterna lanterna;
     private Player player;
+    private boolean creatingGrid;
 
 
     public KeyboardHandler(Lanterna lanterna, Player player) {
         this.lanterna = lanterna;
         this.player = player;
-
-        System.out.println("construtor");
+        creatingGrid = true;
     }
 
     @Override
@@ -29,9 +29,20 @@ public class KeyboardHandler implements Runnable {
 
             while (true) {
                 key = lanterna.getScreen().readInput();
-                System.out.println("using keyboard");
+                //System.out.println("using key " + key.getKeyType().name());
 
-                player.moveCursor(key.getKeyType());
+                switch (key.getKeyType()) {
+                    case Enter:
+                        if(creatingGrid){
+                            player.shipPlacement();
+
+                        }else {
+                            player.shoot();
+                        }
+                        break;
+                    default:
+                        player.moveCursor(key.getKeyType());
+                }
 
                 /*switch (key.getKeyType()){
                     case Tab:
@@ -127,6 +138,10 @@ public class KeyboardHandler implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setCreatingGrid(boolean creatingGrid) {
+        this.creatingGrid = creatingGrid;
     }
 }
 

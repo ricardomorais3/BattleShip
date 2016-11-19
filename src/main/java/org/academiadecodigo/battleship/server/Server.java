@@ -33,22 +33,27 @@ public class Server {
     public void start() {
 
         try {
+
+            // Initialize the Server Socket
             serverSocket = new ServerSocket(portNumber);
 
-            System.out.println("waiting for clients...");
+            // Program stops here, waiting for Player 1 to connect
+            System.out.println("Waiting for clients...");
             clientSocket = serverSocket.accept();
-            System.out.println("client " + clientSocket.getInetAddress().getHostAddress() + "connected");
-            PlayerHandler playerHandler = new PlayerHandler(clientSocket);
+            System.out.println("client " + clientSocket.getInetAddress().getHostAddress() + " is now connected!");
 
+            // Create a player handler for Player 1, which will run on a new thread
+            PlayerHandler playerHandler = new PlayerHandler(clientSocket);
             Thread thread = new Thread(playerHandler);
             thread.start();
 
-
-            System.out.println("waiting for player 2..");
+            // Program stops here, waiting for Player 2 to connect
+            System.out.println("Waiting for a second client...");
             clientSocket = serverSocket.accept();
             System.out.println("client " + clientSocket.getInetAddress().getHostAddress() + "connected");
-            PlayerHandler playerHandler2 = new PlayerHandler(clientSocket);
 
+            // Create a player handler for Player 1, which will run on a new thread
+            PlayerHandler playerHandler2 = new PlayerHandler(clientSocket);
             Thread thread2 = new Thread(playerHandler2);
             thread2.start();
 

@@ -18,70 +18,39 @@ public class Lanterna implements Runnable {
 
     private Terminal terminal;
     private Screen screen;
-    private Label[][] labelsMatrix;
+    private Label[][] myLabelsMatrix;
+    private Label[][] enemyLabelsMatrix;
     private Player player;
+    private KeyboardHandler keyboardHandler;
+    private Panel mainPanel;
+    private Panel leftPanel;
+    private Panel rightPanel;
 
-    public Lanterna(Player player){
+
+    public Lanterna(Player player) {
         this.player = player;
     }
 
-   /* public void teste() {
-        if (horizontal) {
-            for (int i = 0; i < 10; i++) {
-                for (int j = 0; j < 10; j++) {
-                    if (labelsMatrix[j][i].getPosition().getColumn() == myPos.getColumn()
-                            && labelsMatrix[j][i].getPosition().getRow() == myPos.getRow()) {
-                        for (int k = 0; k < boatSize; k++) {
-                            labelsMatrix[j + k][i].setText("  ");
-                            labelsMatrix[j + k][i].setBackgroundColor(TextColor.ANSI.RED);
-                        }
-                        j += boatSize - 1;
-                    } else {
-                        labelsMatrix[j][i].setText("  ");
-                        labelsMatrix[j][i].setBackgroundColor(new TextColor.RGB(72, 116, 250));
-                    }
-                }
-            }
-        } else {
-            for (int i = 0; i < 10; i++) {
-                for (int j = 0; j < 10; j++) {
-                    if (labelsMatrix[i][j].getPosition().getColumn() == myPos.getColumn()
-                            && labelsMatrix[i][j].getPosition().getRow() == myPos.getRow()) {
-                        for (int k = 0; k < boatSize; k++) {
-                            labelsMatrix[i][j + k].setText("  ");
-                            labelsMatrix[i][j + k].setBackgroundColor(TextColor.ANSI.RED);
-                        }
-                        j += boatSize - 1;
-                    } else {
-                        labelsMatrix[i][j].setText("  ");
-                        labelsMatrix[i][j].setBackgroundColor(new TextColor.RGB(72, 116, 250));
-                    }
-                }
-            }
-        }
+    public void rePaint(Position position, int boatSize, boolean isHorizontal) {
 
-    }*/
-
-    public void rePaint(Position position, int boatSize, boolean isHorizontal){
-
-        position = new Position((position.getCol()*2)+1, position.getRow());
+        position = new Position((position.getCol() * 2) + 1, position.getRow());
 
         if (isHorizontal) {
             for (int i = 0; i < 10; i++) {
                 for (int j = 0; j < 10; j++) {
-                    if (labelsMatrix[j][i].getPosition().getColumn() == position.getCol()
-                            && labelsMatrix[j][i].getPosition().getRow() == position.getRow()) {
+                    if (myLabelsMatrix[j][i].getPosition().getColumn() == position.getCol()
+                            && myLabelsMatrix[j][i].getPosition().getRow() == position.getRow()) {
                         for (int k = 0; k < boatSize; k++) {
-                            labelsMatrix[j + k][i].setText("  ");
-                            labelsMatrix[j + k][i].setBackgroundColor(TextColor.ANSI.RED);
+                            myLabelsMatrix[j + k][i].setText("  ");
+                            myLabelsMatrix[j + k][i].setBackgroundColor(TextColor.ANSI.RED);
                         }
                         j += boatSize - 1;
                     } else {
-                        if (player.getGrid()[j][i].getType() == 'S'){
-                            labelsMatrix[j][i].setBackgroundColor(new TextColor.RGB(172, 126, 250));
-                        }else {
-                            labelsMatrix[j][i].setText("  ");
-                            labelsMatrix[j][i].setBackgroundColor(new TextColor.RGB(72, 116, 250));
+                        if (player.getMyGrid()[j][i].getType() == 'S') {
+                            myLabelsMatrix[j][i].setBackgroundColor(new TextColor.RGB(172, 126, 250));
+                        } else {
+                            myLabelsMatrix[j][i].setText("  ");
+                            myLabelsMatrix[j][i].setBackgroundColor(new TextColor.RGB(72, 116, 250));
                         }
                     }
                 }
@@ -89,19 +58,19 @@ public class Lanterna implements Runnable {
         } else {
             for (int i = 0; i < 10; i++) {
                 for (int j = 0; j < 10; j++) {
-                    if (labelsMatrix[i][j].getPosition().getColumn() == position.getCol()
-                            && labelsMatrix[i][j].getPosition().getRow() == position.getRow()) {
+                    if (myLabelsMatrix[i][j].getPosition().getColumn() == position.getCol()
+                            && myLabelsMatrix[i][j].getPosition().getRow() == position.getRow()) {
                         for (int k = 0; k < boatSize; k++) {
-                            labelsMatrix[i][j + k].setText("  ");
-                            labelsMatrix[i][j + k].setBackgroundColor(TextColor.ANSI.RED);
+                            myLabelsMatrix[i][j + k].setText("  ");
+                            myLabelsMatrix[i][j + k].setBackgroundColor(TextColor.ANSI.RED);
                         }
                         j += boatSize - 1;
                     } else {
-                        if(player.getGrid()[i][j].getType() == 'S'){
-                            labelsMatrix[i][j].setBackgroundColor(new TextColor.RGB(172, 126, 250));
-                        }else{
-                            labelsMatrix[i][j].setText("  ");
-                            labelsMatrix[i][j].setBackgroundColor(new TextColor.RGB(72, 116, 250));
+                        if (player.getMyGrid()[i][j].getType() == 'S') {
+                            myLabelsMatrix[i][j].setBackgroundColor(new TextColor.RGB(172, 126, 250));
+                        } else {
+                            myLabelsMatrix[i][j].setText("  ");
+                            myLabelsMatrix[i][j].setBackgroundColor(new TextColor.RGB(72, 116, 250));
                         }
                     }
                 }
@@ -115,38 +84,58 @@ public class Lanterna implements Runnable {
 
     @Override
     public void run() {
+
         try {
 
             terminal = new DefaultTerminalFactory().createTerminal();
             screen = new TerminalScreen(terminal);
             screen.startScreen();
 
-            Panel panel = new Panel();
-            panel.setLayoutManager(new GridLayout(10).setHorizontalSpacing(0));
-            panel.withBorder(Borders.doubleLine());
-            panel.setPreferredSize(new TerminalSize(30, 10));
+            mainPanel = new Panel();
 
-            labelsMatrix = new Label[10][10];
+
+            rightPanel = new Panel();
+            rightPanel.setLayoutManager(new GridLayout(10).setHorizontalSpacing(0));
+            rightPanel.withBorder(Borders.doubleLine());
+            rightPanel.setPreferredSize(new TerminalSize(30, 10));
+
+            leftPanel = new Panel();
+            leftPanel.setLayoutManager(new GridLayout(10).setHorizontalSpacing(0));
+            leftPanel.withBorder(Borders.doubleLine());
+            leftPanel.setPreferredSize(new TerminalSize(30, 10));
+
+            
+
+            mainPanel.setLayoutManager(new LinearLayout(Direction.HORIZONTAL));
+            mainPanel.addComponent(leftPanel);
+            mainPanel.addComponent(new Label("Create Field"));
+            mainPanel.addComponent(rightPanel);
+
+            myLabelsMatrix = new Label[10][10];
+            enemyLabelsMatrix = new Label[10][10];
+
             //rows
             for (int i = 0; i < 10; i++) {
                 //cols
                 for (int j = 0; j < 10; j++) {
-                    labelsMatrix[j][i] = new Label("  ").setBackgroundColor(new TextColor.RGB(72, 116, 250)).setLabelWidth(2);
-                    panel.addComponent(labelsMatrix[j][i]);
+                    myLabelsMatrix[j][i] = new Label("  ").setBackgroundColor(new TextColor.RGB(72, 116, 250)).setLabelWidth(2);
+                    leftPanel.addComponent(myLabelsMatrix[j][i]);
+                    enemyLabelsMatrix[j][i] = new Label("  ").setBackgroundColor(new TextColor.RGB(72, 116, 250)).setLabelWidth(2);
+                    rightPanel.addComponent(enemyLabelsMatrix[j][i]);
                 }
             }
 
             for (int i = 0; i < player.getShipSize(); i++) {
-                labelsMatrix[i][0].setBackgroundColor(TextColor.ANSI.RED);
+                myLabelsMatrix[i][0].setBackgroundColor(TextColor.ANSI.RED);
             }
 
             BasicWindow window = new BasicWindow();
 
-            window.setComponent(panel);
+            window.setComponent(mainPanel);
 
             MultiWindowTextGUI gui = new MultiWindowTextGUI(screen, new DefaultWindowManager(), new EmptySpace(TextColor.ANSI.RED));
 
-            KeyboardHandler keyboardHandler = new KeyboardHandler(this, player);
+            keyboardHandler = new KeyboardHandler(this, player);
             Thread keyboard = new Thread(keyboardHandler);
             keyboard.start();
 
@@ -156,4 +145,51 @@ public class Lanterna implements Runnable {
             e.printStackTrace();
         }
     }
+
+    public KeyboardHandler getKeyboardHandler() {
+        return keyboardHandler;
+    }
+
+    public void changeMainPanel() {
+        mainPanel.removeAllComponents();
+        mainPanel.addComponent(rightPanel);
+        mainPanel.addComponent(leftPanel);
+    }
+
+    /* public void teste() {
+        if (horizontal) {
+            for (int i = 0; i < 10; i++) {
+                for (int j = 0; j < 10; j++) {
+                    if (myLabelsMatrix[j][i].getPosition().getColumn() == myPos.getColumn()
+                            && myLabelsMatrix[j][i].getPosition().getRow() == myPos.getRow()) {
+                        for (int k = 0; k < boatSize; k++) {
+                            myLabelsMatrix[j + k][i].setText("  ");
+                            myLabelsMatrix[j + k][i].setBackgroundColor(TextColor.ANSI.RED);
+                        }
+                        j += boatSize - 1;
+                    } else {
+                        myLabelsMatrix[j][i].setText("  ");
+                        myLabelsMatrix[j][i].setBackgroundColor(new TextColor.RGB(72, 116, 250));
+                    }
+                }
+            }
+        } else {
+            for (int i = 0; i < 10; i++) {
+                for (int j = 0; j < 10; j++) {
+                    if (myLabelsMatrix[i][j].getPosition().getColumn() == myPos.getColumn()
+                            && myLabelsMatrix[i][j].getPosition().getRow() == myPos.getRow()) {
+                        for (int k = 0; k < boatSize; k++) {
+                            myLabelsMatrix[i][j + k].setText("  ");
+                            myLabelsMatrix[i][j + k].setBackgroundColor(TextColor.ANSI.RED);
+                        }
+                        j += boatSize - 1;
+                    } else {
+                        myLabelsMatrix[i][j].setText("  ");
+                        myLabelsMatrix[i][j].setBackgroundColor(new TextColor.RGB(72, 116, 250));
+                    }
+                }
+            }
+        }
+
+    }*/
 }
