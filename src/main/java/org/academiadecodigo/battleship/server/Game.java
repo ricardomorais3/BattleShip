@@ -68,6 +68,14 @@ public class Game {
         }
     }
 
+    public synchronized void gameOver() {
+        if(Thread.currentThread().getName().equals("Player1")){
+            playerHandler2.sendMessage("You Lost");
+        }else {
+            playerHandler1.sendMessage("You Lost");
+        }
+    }
+
     private void sendTurn(){
         if(Math.random() < 0.5){
             playerHandler1.sendMessage(true);

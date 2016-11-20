@@ -5,6 +5,7 @@ import org.academiadecodigo.battleship.player.Ship;
 
 import java.io.*;
 import java.lang.*;
+import java.lang.Object;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
@@ -73,8 +74,16 @@ public class PlayerHandler implements Runnable {
 
             Position[][] updatedGrid;
 
+            Object readingObj;
             while (true) {
-                updatedGrid = (Position[][]) in.readObject();
+                readingObj = in.readObject();
+                if(readingObj instanceof String){
+                    System.out.println("inside readin object");
+                    game.gameOver();
+                    readingObj = in.readObject();
+                }
+
+                updatedGrid = (Position[][]) readingObj;
                 game.updateGrid(updatedGrid);
             }
 

@@ -86,14 +86,22 @@ public class Player {
             }
             lanterna.rePaintEnemyGrid(myPos);
 
+            java.lang.Object readingObj;
 
             while (true) {
-                myGrid = (Position[][]) in.readObject();
+                readingObj = in.readObject();
+                lanterna.changePanelTitle("It's your turn");
+
+                if (readingObj instanceof String){
+                    lanterna.changePanelTitle("You Lost");
+
+                    readingObj = in.readObject();
+                }
+                myGrid = (Position[][]) readingObj;
 
                 lanterna.rePaintMyGrid2();
 
                 canShoot = true;
-                lanterna.changePanelTitle("It's your turn");
 
             }
 
@@ -134,10 +142,6 @@ public class Player {
                         ships.remove(i);
                     }
                 }
-
-                if(ships.size() == 0){
-                    System.out.println("winner");
-                }
             }
             lanterna.changePanelTitle("It's your enemy's turn");
 
@@ -150,6 +154,10 @@ public class Player {
 
             try {
                 out.reset();
+                if(ships.size() == 0){
+                    lanterna.changePanelTitle("Winner");
+                    out.writeObject("Winner");
+                }
                 out.writeObject(enemyGrid);
                 out.flush();
             } catch (IOException e) {

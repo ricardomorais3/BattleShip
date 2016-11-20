@@ -43,12 +43,12 @@ public class Lanterna implements Runnable {
                             && myLabelsMatrix[j][i].getPosition().getRow() == position.getRow()) {
                         for (int k = 0; k < boatSize; k++) {
                             myLabelsMatrix[j + k][i].setText("  ");
-                            myLabelsMatrix[j + k][i].setBackgroundColor(TextColor.ANSI.RED);
+                            myLabelsMatrix[j + k][i].setBackgroundColor(new TextColor.RGB(90, 90, 90));
                         }
                         j += boatSize - 1;
                     } else {
                         if (player.getMyGrid()[j][i].getType() == 'S') {
-                            myLabelsMatrix[j][i].setBackgroundColor(new TextColor.RGB(172, 126, 250));
+                            myLabelsMatrix[j][i].setBackgroundColor(new TextColor.RGB(64, 64, 64));
                         } else {
                             myLabelsMatrix[j][i].setText("  ");
                             myLabelsMatrix[j][i].setBackgroundColor(new TextColor.RGB(72, 116, 250));
@@ -63,12 +63,12 @@ public class Lanterna implements Runnable {
                             && myLabelsMatrix[i][j].getPosition().getRow() == position.getRow()) {
                         for (int k = 0; k < boatSize; k++) {
                             myLabelsMatrix[i][j + k].setText("  ");
-                            myLabelsMatrix[i][j + k].setBackgroundColor(TextColor.ANSI.RED);
+                            myLabelsMatrix[i][j + k].setBackgroundColor(new TextColor.RGB(90, 90, 90));
                         }
                         j += boatSize - 1;
                     } else {
                         if (player.getMyGrid()[i][j].getType() == 'S') {
-                            myLabelsMatrix[i][j].setBackgroundColor(new TextColor.RGB(172, 126, 250));
+                            myLabelsMatrix[i][j].setBackgroundColor(new TextColor.RGB(64, 64, 64));
                         } else {
                             myLabelsMatrix[i][j].setText("  ");
                             myLabelsMatrix[i][j].setBackgroundColor(new TextColor.RGB(72, 116, 250));
@@ -88,23 +88,23 @@ public class Lanterna implements Runnable {
         }
     }
 
-    private TextColor getColor(char c){
+    private TextColor getColor(char c) {
         TextColor color;
-        switch (c){
+        switch (c) {
             case 'S':
-                color = new TextColor.RGB(172, 126, 250);
+                color = new TextColor.RGB(64, 64, 64);//Gray
                 break;
             case 'H':
-                color = TextColor.ANSI.YELLOW;
+                color = new TextColor.RGB(204, 0, 0);//RED
                 break;
             case 'C':
-                color = TextColor.ANSI.RED;
+                color = new TextColor.RGB(255, 0, 0);//DARK RED
                 break;
             case 'M':
-                color = TextColor.ANSI.BLACK;
+                color = new TextColor.RGB(0, 36, 152);//DARK BLUE
                 break;
             default:
-                color = new TextColor.RGB(72, 116, 250);
+                color = new TextColor.RGB(72, 116, 250);//LIGHT BLUE
         }
         return color;
     }
@@ -133,17 +133,17 @@ public class Lanterna implements Runnable {
                         && enemyLabelsMatrix[j][i].getPosition().getRow() == position.getRow()) {
 
                     enemyLabelsMatrix[j][i].setText("  ");
-                    enemyLabelsMatrix[j][i].setBackgroundColor(TextColor.ANSI.RED);
+                    enemyLabelsMatrix[j][i].setBackgroundColor(new TextColor.RGB(76, 153, 0));
 
                 } else {
-                    if (player.getEnemyGrid()[j][i].getType() == 'S') {
-                        enemyLabelsMatrix[j][i].setBackgroundColor(TextColor.ANSI.BLUE);
-                    }else if(player.getEnemyGrid()[j][i].getType() == 'H'){
-                        enemyLabelsMatrix[j][i].setBackgroundColor(TextColor.ANSI.YELLOW);
-                    }else if(player.getEnemyGrid()[j][i].getType() == 'M'){
-                        enemyLabelsMatrix[j][i].setBackgroundColor(TextColor.ANSI.CYAN);
+                    if (player.getEnemyGrid()[j][i].getType() == 'H') {
+                        enemyLabelsMatrix[j][i].setBackgroundColor(new TextColor.RGB(204, 0, 0));
+                    } else if (player.getEnemyGrid()[j][i].getType() == 'M') {
+                        enemyLabelsMatrix[j][i].setBackgroundColor(new TextColor.RGB(0, 36, 152));
+                    } else if (player.getEnemyGrid()[j][i].getType() == 'C') {
+                        enemyLabelsMatrix[j][i].setBackgroundColor(new TextColor.RGB(255, 0, 0));
                     }else {
-                        enemyLabelsMatrix[j][i].setBackgroundColor(TextColor.ANSI.BLUE);
+                        enemyLabelsMatrix[j][i].setBackgroundColor(new TextColor.RGB(72, 116, 250));
                     }
                 }
             }
@@ -197,7 +197,7 @@ public class Lanterna implements Runnable {
             }
 
             for (int i = 0; i < player.getShipSize(); i++) {
-                myLabelsMatrix[i][0].setBackgroundColor(TextColor.ANSI.RED);
+                myLabelsMatrix[i][0].setBackgroundColor(new TextColor.RGB(90, 90, 90));
             }
 
             window = new BasicWindow();
