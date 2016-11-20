@@ -67,17 +67,22 @@ public class PlayerHandler implements Runnable {
             Position[][] updatedGrid;
             Object readingObj;
 
+            // Waiting for player input
             while (true) {
                 readingObj = in.readObject();
                 if (readingObj == null) {
                     System.out.println("closing connection");
                     return;
                 }
+                // If a String is sent by a client, it means an end result has happened.
                 if (readingObj instanceof String) {
                     System.out.println("inside reading object");
+                    // Game over method
                     game.gameOver();
+                    // String that includes the end result
                     readingObj = in.readObject();
                 }
+                //Refresh grid with the latest round
                 updatedGrid = (Position[][]) readingObj;
                 game.updateGrid(updatedGrid);
             }
@@ -86,15 +91,20 @@ public class PlayerHandler implements Runnable {
             System.out.println("Closing Connection");
             System.exit(1);
         } catch (ClassNotFoundException e) {
+            //When a client sends an unknown object, print the stack trace
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Sends an object
+     * @param obj Object
+     */
     private void send(Object obj){
         try {
-            out.reset();
+            out.reset(); //To avoid accumulating the buffer, the buffer shall be reset before writing in it.
             out.writeObject(obj);
             out.flush();
         } catch (IOException e) {
@@ -102,14 +112,28 @@ public class PlayerHandler implements Runnable {
         }
     }
 
+
+    /**
+     * Send message
+     * @param obj Message
+     */
     public void sendMessage(java.lang.Object obj) {
         send(obj);
     }
+
+    /**
+     * Sends the grid
+     * @param grid
+     */
 
     public synchronized void sendGrid(Position[][] grid) {
         send(grid);
     }
 
+    /**
+     * Sets the name of the current thread
+     * @param name String
+     */
     public void setName(String name) {
         Thread.currentThread().setName(name);
     }
