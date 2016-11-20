@@ -29,8 +29,6 @@ public class Position implements Serializable{
         this.type = type;
     }
 
-
-
     public int getCol() {
         return col;
     }

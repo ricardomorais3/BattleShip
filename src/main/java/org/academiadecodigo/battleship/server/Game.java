@@ -2,15 +2,12 @@ package org.academiadecodigo.battleship.server;
 
 import org.academiadecodigo.battleship.Position;
 import org.academiadecodigo.battleship.player.Ship;
-
-import java.util.LinkedList;
 import java.util.List;
 
 /**
  * Created by codecadet on 18/11/16.
  */
 public class Game {
-
     private PlayerHandler playerHandler1;
     private PlayerHandler playerHandler2;
     private Position[][] p1Grid;
@@ -23,12 +20,9 @@ public class Game {
         this.playerHandler1 = playerHandler1;
         this.playerHandler2 = playerHandler2;
         startShooting = true;
-
     }
 
-
     public void startGame() {
-
         playerHandler1.setGame(this);
         playerHandler2.setGame(this);
         playerHandler1.setName("Player1");
@@ -36,18 +30,15 @@ public class Game {
 
         playerHandler1.sendMessage("Populate your grid");
         playerHandler2.sendMessage("Populate your grid");
-
     }
 
     public synchronized void updateGrid(Position[][] grid) {
         if(Thread.currentThread().getName().equals("Player1")){
             p2Grid = grid;
             playerHandler2.sendGrid(grid);
-
         }else {
             p1Grid = grid;
             playerHandler1.sendGrid(grid);
-
         }
     }
 
@@ -61,9 +52,7 @@ public class Game {
             p2Grid = grid;
             p2Ships = ships;
             startShooting = !startShooting;
-        }
-
-        if (startShooting){
+        }if (startShooting){
             sendTurn();
         }
     }

@@ -17,9 +17,7 @@ import java.util.List;
 public class PlayerHandler implements Runnable {
     private Socket clientSocket;
     private Game game;
-    private ObjectInputStream in;
     private ObjectOutputStream out;
-
 
     public PlayerHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
@@ -28,7 +26,6 @@ public class PlayerHandler implements Runnable {
     public void setGame(Game game) {
         this.game = game;
     }
-
 
     public void sendMessage(java.lang.Object obj) {
         try {
@@ -40,7 +37,7 @@ public class PlayerHandler implements Runnable {
         }
     }
 
-    public synchronized void sendGrid(Position[][] grid){
+    public synchronized void sendGrid(Position[][] grid) {
         try {
             out.reset();
             out.writeObject(grid);
@@ -52,10 +49,9 @@ public class PlayerHandler implements Runnable {
 
     @Override
     public void run() {
-
         try {
             out = new ObjectOutputStream(clientSocket.getOutputStream());
-            in = new ObjectInputStream(clientSocket.getInputStream());
+            ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
 
             // Send message to the Player handled by this object
             sendMessage("Waiting for other player");
@@ -64,32 +60,38 @@ public class PlayerHandler implements Runnable {
             // and when he does, stores it in the initialGrid reference
             Position[][] initialGrid;
             List<Ship> ships;
+
             initialGrid = (Position[][]) in.readObject();
             ships = (LinkedList) in.readObject();
 
             // Store the initial grid on the Game's reference to the grid
             game.initialGrid(initialGrid, ships);
-
             System.out.println("Begin Game!");
 
             Position[][] updatedGrid;
-
             Object readingObj;
+
             while (true) {
                 readingObj = in.readObject();
-                if(readingObj instanceof String){
-                    System.out.println("inside readin object");
+                if (readingObj == null) {
+                    System.out.println("closing connection");
+                    return;
+                }
+                if (readingObj instanceof String) {
+                    System.out.println("inside reading object");
                     game.gameOver();
                     readingObj = in.readObject();
                 }
-
                 updatedGrid = (Position[][]) readingObj;
                 game.updateGrid(updatedGrid);
             }
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (EOFException e) {
+            System.out.println("Closing Connection");
+            System.exit(1);
         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

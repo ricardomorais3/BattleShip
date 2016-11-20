@@ -10,18 +10,10 @@ import java.util.List;
  * Created by codecadet on 18/11/16.
  */
 public class Server {
-
-    private List<PlayerHandler> clientList;
     private int portNumber;
-    private Socket clientSocket;
-    private ServerSocket serverSocket;
-    private Game game;
-
 
     public Server(int portNumber) {
-
         this.portNumber = portNumber;
-        clientList = new ArrayList<>();
     }
 
     public static void main(String[] args) {
@@ -29,13 +21,11 @@ public class Server {
         server.start();
     }
 
-
     public void start() {
-
         try {
-
             // Initialize the Server Socket
-            serverSocket = new ServerSocket(portNumber);
+            ServerSocket serverSocket = new ServerSocket(portNumber);
+            Socket clientSocket;
 
             // Program stops here, waiting for Player 1 to connect
             System.out.println("Waiting for clients...");
@@ -60,16 +50,12 @@ public class Server {
             thread2.start();
 
             Thread.sleep(1000);
-            game = new Game(playerHandler,playerHandler2);
+            Game game = new Game(playerHandler,playerHandler2);
             game.startGame();
-
-
-
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
-
 }

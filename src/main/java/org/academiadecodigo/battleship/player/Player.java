@@ -15,21 +15,21 @@ import java.util.List;
  * Created by codecadet on 18/11/16.
  */
 public class Player {
-
-    private Socket socket;
     private ObjectOutputStream out;
-    private ObjectInputStream in;
     private Position[][] myGrid;
     private Position[][] enemyGrid;
-    private boolean horizontal;
+    private List<Ship> ships;
     private Position myPos;
     private Lanterna lanterna;
-    private int shipSize;
-    private final int NUMSHIPS;
-    private int shipsCreated;
+
+    private boolean horizontal;
     private boolean canShoot;
     private boolean startGame;
-    private List<Ship> ships;
+    private int shipSize;
+    private int shipsCreated;
+    private final int NUMSHIPS;
+    public static final int COLS = 10;
+    public static final int ROWS = 10;
 
     public Player() {
         NUMSHIPS = 4;
@@ -44,21 +44,12 @@ public class Player {
     }
 
     private void start() {
-
         try {
-            socket = new Socket(InetAddress.getByName("localhost"), 2000);
+            Socket socket = new Socket(InetAddress.getByName("localhost"), 2000);
             out = new ObjectOutputStream(socket.getOutputStream());
-            in = new ObjectInputStream(socket.getInputStream());
-            myPos = new Position(0, 0);
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
-           /* while (true) {
-                java.lang.Object object = in.readObject();
-                if (object instanceof String) {
-                    System.out.println((String) object);
-                } else {
-                    System.out.println("another type");
-                }
-            }*/
+            myPos = new Position(0, 0);
 
             String message = (String) in.readObject();
             System.out.println(message);
@@ -66,8 +57,7 @@ public class Player {
             message = (String) in.readObject();
             System.out.println(message);
 
-            myGrid = new Position[10][10];
-
+            myGrid = new Position[COLS][ROWS];
             createGrid(myGrid);
 
             lanterna = new Lanterna(this);
@@ -84,8 +74,8 @@ public class Player {
             } else {
                 lanterna.changePanelTitle("It's your enemy's turn");
             }
-            lanterna.rePaintEnemyGrid(myPos);
 
+            lanterna.rePaintEnemyGrid(myPos);
             java.lang.Object readingObj;
 
             while (true) {
@@ -97,14 +87,14 @@ public class Player {
 
                     readingObj = in.readObject();
                 }
+
                 myGrid = (Position[][]) readingObj;
-
                 lanterna.rePaintMyGrid2();
-
                 canShoot = true;
-
             }
-
+        }catch (EOFException e){
+            System.out.println("Server closed the connection");
+            System.exit(1);
         } catch (IOException e) {
             System.out.println("Server hasn't answered the connection.");
             e.printStackTrace();
@@ -143,13 +133,9 @@ public class Player {
                     }
                 }
             }
+
             lanterna.changePanelTitle("It's your enemy's turn");
-
             enemyGrid[myPos.getCol()][myPos.getRow()].setType(Object.getReverse(enemyGrid[myPos.getCol()][myPos.getRow()].getType()));
-
-
-
-            //repaint
             lanterna.rePaintEnemyGrid(myPos);
 
             try {
@@ -164,12 +150,6 @@ public class Player {
                 e.printStackTrace();
             }
         }
-
-    }
-
-    private void shipDestroyed(int row, int col) {
-        // TODO: 18/11/16 change all elementes of the ship to a new one
-        myGrid[row][col].setType(Object.SHIP_CRASHED.getSymbol());
     }
 
     public void createGrid(Position[][] grid) {
@@ -181,15 +161,14 @@ public class Player {
     }
 
     public boolean outOfBounds(KeyType key) {
-
         if (horizontal) {
             if (key.equals(KeyType.ArrowDown)) {
-                if (myPos.getRow() < 9) {
+                if (myPos.getRow() < ROWS - 1) {
                     myPos = new Position(myPos.getCol(), myPos.getRow() + 1);
                     return false;
                 }
             } else if (key.equals(KeyType.ArrowRight)) {
-                if ((myPos.getCol() + (shipSize) - 1) < 9) {
+                if ((myPos.getCol() + (shipSize)) < COLS) {
                     myPos = new Position(myPos.getCol() + 1, myPos.getRow());
                     return false;
                 }
@@ -204,7 +183,7 @@ public class Player {
                     return false;
                 }
             } else if (key.equals(KeyType.Tab)) {
-                if (((myPos.getRow() + (shipSize) - 1) < 10) && myPos.getRow() >= 0) {
+                if (((myPos.getRow() + (shipSize) - 1) < ROWS) && myPos.getRow() >= 0) {
                     horizontal = !horizontal;
                     return false;
                 }
@@ -212,12 +191,12 @@ public class Player {
             return true;
         } else {
             if (key.equals(KeyType.ArrowDown)) {
-                if ((myPos.getRow() + (shipSize) - 1) < 9) {
+                if ((myPos.getRow() + (shipSize)) < ROWS) {
                     myPos = new Position(myPos.getCol(), myPos.getRow() + 1);
                     return false;
                 }
             } else if (key.equals(KeyType.ArrowRight)) {
-                if (myPos.getCol() < 9) {
+                if (myPos.getCol() < COLS-1) {
                     myPos = new Position(myPos.getCol() + 1, myPos.getRow());
                     return false;
                 }
@@ -232,7 +211,7 @@ public class Player {
                     return false;
                 }
             } else if (key.equals(KeyType.Tab)) {
-                if ((myPos.getCol() + (shipSize) - 1) < 10 && myPos.getCol() >= 0) {
+                if ((myPos.getCol() + (shipSize) - 1) < COLS && myPos.getCol() >= 0) {
                     horizontal = !horizontal;
                     return false;
                 }
@@ -243,7 +222,6 @@ public class Player {
 
     public void moveCursor(KeyType keyType) {
         if (!outOfBounds(keyType)) {
-
             if (lanterna.getKeyboardHandler().isCreatingGrid()) {
                 lanterna.rePaintMyGrid(myPos, shipSize, horizontal);
             } else {
@@ -251,7 +229,6 @@ public class Player {
                     lanterna.rePaintEnemyGrid(myPos);
                 }
             }
-
         }
     }
 
@@ -277,14 +254,6 @@ public class Player {
     private boolean collisonDetectorInShooting() {
         return (enemyGrid[myPos.getCol()][myPos.getRow()].getType() == 'W' ||
                 enemyGrid[myPos.getCol()][myPos.getRow()].getType() == 'S');
-    }
-
-    public Position getMyPos() {
-        return myPos;
-    }
-
-    public void setMyPos(Position myPos) {
-        this.myPos = myPos;
     }
 
     public int getShipSize() {
