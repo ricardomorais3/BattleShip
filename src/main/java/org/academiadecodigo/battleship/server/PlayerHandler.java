@@ -15,38 +15,34 @@ import java.util.List;
  */
 
 public class PlayerHandler implements Runnable {
+
+    /**
+     * Connection between the player and the server
+     */
     private Socket clientSocket;
+
+    /**
+     * Allows communication with the other player
+     */
     private Game game;
+
+    /**
+     * Allows sending information to the player
+     */
     private ObjectOutputStream out;
 
+    /**
+     * Creates a player handler and gives it a client socket
+     * @param clientSocket Connection between the player and the server
+     */
     public PlayerHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
     }
 
-    public void setGame(Game game) {
-        this.game = game;
-    }
-
-    public void sendMessage(java.lang.Object obj) {
-        try {
-            out.reset();
-            out.writeObject(obj);
-            out.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public synchronized void sendGrid(Position[][] grid) {
-        try {
-            out.reset();
-            out.writeObject(grid);
-            out.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
+    /**
+     * Receives the initial grids.
+     * Contains the game logic: each player sends his enemy's grid updated, which is then sent to the enemy
+     */
     @Override
     public void run() {
         try {
@@ -96,7 +92,33 @@ public class PlayerHandler implements Runnable {
         }
     }
 
+    private void send(Object obj){
+        try {
+            out.reset();
+            out.writeObject(obj);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendMessage(java.lang.Object obj) {
+        send(obj);
+    }
+
+    public synchronized void sendGrid(Position[][] grid) {
+        send(grid);
+    }
+
     public void setName(String name) {
         Thread.currentThread().setName(name);
+    }
+
+    /**
+     * Assigns a Game to this player
+     * @param game Allows communication with the other player
+     */
+    public void setGame(Game game) {
+        this.game = game;
     }
 }
