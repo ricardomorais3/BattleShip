@@ -27,6 +27,8 @@ public enum Object {
                 return 'H';
             case 'W':
                 return 'M';
+            case 'C':
+                return 'C';
             default:
                 return 'A';
         }

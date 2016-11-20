@@ -8,6 +8,8 @@ import org.academiadecodigo.battleship.Position;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by codecadet on 18/11/16.
@@ -27,11 +29,13 @@ public class Player {
     private int shipsCreated;
     private boolean canShoot;
     private boolean startGame;
+    private List<Ship> ships;
 
     public Player() {
         NUMSHIPS = 4;
         shipSize = 1;
         horizontal = true;
+        ships = new LinkedList<>();
     }
 
     public static void main(String[] args) {
@@ -73,6 +77,7 @@ public class Player {
             canShoot = (boolean) in.readObject();
             startGame = (boolean) in.readObject();
             enemyGrid = (Position[][]) in.readObject();
+            ships = (LinkedList) in.readObject();
 
             if (canShoot) {
                 lanterna.changePanelTitle("It's your turn");
@@ -111,7 +116,7 @@ public class Player {
         }
     }
 
-    public void shoot() {
+    public synchronized void shoot() {
         //TODO: myGrid = Objects.getSymbol();
         if (!canShoot || !startGame) {
             return;
@@ -119,10 +124,25 @@ public class Player {
 
         if (collisonDetectorInShooting()) {
             canShoot = false;
+            if(enemyGrid[myPos.getCol()][myPos.getRow()].getType() == 'S'){
+                for (int i = 0; i < ships.size(); i++) {
+                    ships.get(i).verifyHit(myPos);
+                    if (ships.get(i).isCrashed()){
+                        for (int j = 0; j < ships.get(i).getPositions().length; j++) {
+                            enemyGrid[ships.get(i).getPositions()[j].getCol()][ships.get(i).getPositions()[j].getRow()].setType(Object.SHIP_CRASHED.getSymbol());
+                        }
+                        ships.remove(i);
+                    }
+                }
+
+                if(ships.size() == 0){
+                    System.out.println("winner");
+                }
+            }
             lanterna.changePanelTitle("It's your enemy's turn");
 
-
             enemyGrid[myPos.getCol()][myPos.getRow()].setType(Object.getReverse(enemyGrid[myPos.getCol()][myPos.getRow()].getType()));
+
 
 
             //repaint
@@ -271,6 +291,7 @@ public class Player {
         if (shipsCreated < NUMSHIPS) {
             if (!collisionDetectorInPlacement(horizontal, shipSize)) {
                 placeShip(myPos, horizontal, shipSize, myGrid);
+                ships.add(new Ship(myPos, horizontal, shipSize));
                 shipsCreated++;
                 shipSize++;
                 myPos.setCol(0);
@@ -282,6 +303,7 @@ public class Player {
                         lanterna.changePanelTitle("Waiting for your enemy...");
                         lanterna.rePaintMyGrid2();
                         out.writeObject(myGrid);
+                        out.writeObject(ships);
                         return;
                     } catch (IOException e) {
                         e.printStackTrace();

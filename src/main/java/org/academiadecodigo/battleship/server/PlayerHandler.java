@@ -1,10 +1,13 @@
 package org.academiadecodigo.battleship.server;
 
 import org.academiadecodigo.battleship.Position;
+import org.academiadecodigo.battleship.player.Ship;
 
 import java.io.*;
 import java.lang.*;
 import java.net.Socket;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by codecadet on 18/11/16.
@@ -59,10 +62,12 @@ public class PlayerHandler implements Runnable {
             // Creates a reference for the initial grid, waits for the Player to send it
             // and when he does, stores it in the initialGrid reference
             Position[][] initialGrid;
+            List<Ship> ships;
             initialGrid = (Position[][]) in.readObject();
+            ships = (LinkedList) in.readObject();
 
             // Store the initial grid on the Game's reference to the grid
-            game.initialGrid(initialGrid);
+            game.initialGrid(initialGrid, ships);
 
             System.out.println("Begin Game!");
 
