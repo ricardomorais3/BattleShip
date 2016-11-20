@@ -32,13 +32,13 @@ public class Game {
 
     }
 
-    public void updateGrid(Position[][] grid) {
+    public synchronized void updateGrid(Position[][] grid) {
         if(Thread.currentThread().getName().equals("Player1")){
             p2Grid = grid;
-            playerHandler2.sendGrid(p2Grid);
+            playerHandler2.sendGrid(grid);
         }else {
             p1Grid = grid;
-            playerHandler1.sendGrid(p1Grid);
+            playerHandler1.sendGrid(grid);
         }
     }
 

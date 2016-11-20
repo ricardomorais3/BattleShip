@@ -28,6 +28,7 @@ public class PlayerHandler implements Runnable {
 
     public void sendMessage(java.lang.Object obj) {
         try {
+            out.reset();
             out.writeObject(obj);
             out.flush();
         } catch (IOException e) {
@@ -35,8 +36,9 @@ public class PlayerHandler implements Runnable {
         }
     }
 
-    public void sendGrid(Position[][] grid){
+    public synchronized void sendGrid(Position[][] grid){
         try {
+            out.reset();
             out.writeObject(grid);
             out.flush();
         } catch (IOException e) {

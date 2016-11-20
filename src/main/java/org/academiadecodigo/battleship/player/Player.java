@@ -74,21 +74,19 @@ public class Player {
             startGame = (boolean) in.readObject();
             enemyGrid = (Position[][]) in.readObject();
 
-            if(canShoot){
+            if (canShoot) {
                 lanterna.changePanelTitle("It's your turn");
-            }else {
+            } else {
                 lanterna.changePanelTitle("It's your enemy's turn");
             }
             lanterna.rePaintEnemyGrid(myPos);
 
-            int count=0;
 
             while (true) {
                 myGrid = (Position[][]) in.readObject();
-                System.out.println(myGrid);
+
                 lanterna.rePaintMyGrid2();
 
-                // repaint
                 canShoot = true;
                 lanterna.changePanelTitle("It's your turn");
 
@@ -122,16 +120,18 @@ public class Player {
         if (collisonDetectorInShooting()) {
             canShoot = false;
             lanterna.changePanelTitle("It's your enemy's turn");
-            System.out.println(enemyGrid[myPos.getCol()][myPos.getRow()].getType());
+
 
             enemyGrid[myPos.getCol()][myPos.getRow()].setType(Object.getReverse(enemyGrid[myPos.getCol()][myPos.getRow()].getType()));
 
-            System.out.println(enemyGrid[myPos.getCol()][myPos.getRow()].getType());
+
             //repaint
             lanterna.rePaintEnemyGrid(myPos);
 
             try {
+                out.reset();
                 out.writeObject(enemyGrid);
+                out.flush();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -216,11 +216,10 @@ public class Player {
     public void moveCursor(KeyType keyType) {
         if (!outOfBounds(keyType)) {
 
-            if (lanterna.getKeyboardHandler().isCreatingGrid()){
+            if (lanterna.getKeyboardHandler().isCreatingGrid()) {
                 lanterna.rePaintMyGrid(myPos, shipSize, horizontal);
-            }
-            else {
-                if (startGame){
+            } else {
+                if (startGame) {
                     lanterna.rePaintEnemyGrid(myPos);
                 }
             }
@@ -281,7 +280,9 @@ public class Player {
                     lanterna.getKeyboardHandler().setCreatingGrid(false);
                     try {
                         lanterna.changePanelTitle("Waiting for your enemy...");
+                        lanterna.rePaintMyGrid2();
                         out.writeObject(myGrid);
+                        return;
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
