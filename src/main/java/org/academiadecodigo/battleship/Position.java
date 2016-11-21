@@ -9,7 +9,6 @@ import java.io.Serializable;
  */
 public class Position implements Serializable{
 
-
     private int col;
     private int row;
     private char type;

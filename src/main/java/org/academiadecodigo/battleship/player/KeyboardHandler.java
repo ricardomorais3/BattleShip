@@ -8,6 +8,10 @@ import java.io.IOException;
  * Created by codecadet on 18/11/16.
  */
 public class KeyboardHandler implements Runnable {
+
+    /**
+     * Java library
+     */
     private Lanterna lanterna;
     private Player player;
     private boolean creatingGrid;

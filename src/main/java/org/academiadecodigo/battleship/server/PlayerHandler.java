@@ -62,7 +62,6 @@ public class PlayerHandler implements Runnable {
 
             // Store the initial grid on the Game's reference to the grid
             game.initialGrid(initialGrid, ships);
-            System.out.println("Begin Game!");
 
             Position[][] updatedGrid;
             Object readingObj;
