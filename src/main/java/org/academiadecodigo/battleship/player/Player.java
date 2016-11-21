@@ -15,9 +15,22 @@ import java.util.List;
  * Created by codecadet on 18/11/16.
  */
 public class Player {
+    /**
+     * Allows sending information to the server
+     */
     private ObjectOutputStream out;
+
+    /**
+     * The Player's grid of positions
+     */
     private Position[][] myGrid;
+
+    /**
+     * The enemy's grid of positions
+     */
     private Position[][] enemyGrid;
+
+    
     private List<Ship> ships;
     private Position myPos;
     private Lanterna lanterna;
@@ -85,6 +98,10 @@ public class Player {
                 if (readingObj instanceof String){
                     lanterna.changePanelTitle("You Lost");
 
+                    Thread.sleep(5000);
+
+                    System.exit(1);
+
                     readingObj = in.readObject();
                 }
 
@@ -99,6 +116,8 @@ public class Player {
             System.out.println("Server hasn't answered the connection.");
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -115,7 +134,7 @@ public class Player {
     }
 
     public synchronized void shoot() {
-        //TODO: myGrid = Objects.getSymbol();
+
         if (!canShoot || !startGame) {
             return;
         }
@@ -143,10 +162,14 @@ public class Player {
                 if(ships.size() == 0){
                     lanterna.changePanelTitle("Winner");
                     out.writeObject("Winner");
+                    Thread.sleep(5000);
+                    System.exit(1);
                 }
                 out.writeObject(enemyGrid);
                 out.flush();
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }

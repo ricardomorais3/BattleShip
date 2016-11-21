@@ -15,6 +15,11 @@ import java.io.IOException;
  * Created by codecadet on 18/11/16.
  */
 public class Lanterna implements Runnable {
+
+    /**
+     * Fundamental elements of lanterna
+     * Without these elements lanterna doesn't fucking work
+     */
     private Screen screen;
     private Label[][] myLabelsMatrix;
     private Label[][] enemyLabelsMatrix;
@@ -23,10 +28,20 @@ public class Lanterna implements Runnable {
     private Panel mainPanel;
     private BasicWindow window;
 
+    /**
+     * Creates a lanterna object
+     * @param player
+     */
     public Lanterna(Player player) {
         this.player = player;
     }
 
+    /**
+     * Updates the current grid when the ships are being placed
+     * @param position Cursor position
+     * @param boatSize Ship's size
+     * @param isHorizontal Orientation of the ship
+     */
     public void rePaintMyGrid(Position position, int boatSize, boolean isHorizontal) {
         position = new Position((position.getCol() * 2) + 1, position.getRow());
 
@@ -73,8 +88,11 @@ public class Lanterna implements Runnable {
         }
     }
 
+    /**
+     * The players grid is painted every time the enemy finishes his move
+     */
     public void rePaintMyGrid2() {
-        System.out.println("painting grid");
+
         for (int i = 0; i < Player.ROWS; i++) {
             for (int j = 0; j < Player.COLS; j++) {
                 myLabelsMatrix[j][i].setBackgroundColor(getColor(player.getMyGrid()[j][i].getType()));
@@ -82,6 +100,10 @@ public class Lanterna implements Runnable {
         }
     }
 
+    /**
+     * Returns the right color to paint
+     * @param c Type of object
+     */
     private TextColor getColor(char c) {
         TextColor color;
         switch (c) {
@@ -103,6 +125,10 @@ public class Lanterna implements Runnable {
         return color;
     }
 
+    /**
+     * Updates enemy's grid every time the player shoots
+     * @param position Cursor position
+     */
     public void rePaintEnemyGrid(Position position) {
         position = new Position((position.getCol() * 2) + 1, position.getRow());
 
@@ -129,6 +155,11 @@ public class Lanterna implements Runnable {
         }
     }
 
+    /**
+     * Lanterna's Magic Logic
+     * "good luck"
+     * Our first and last project using lanterna 3
+      */
     @Override
     public void run() {
         try {
@@ -186,14 +217,23 @@ public class Lanterna implements Runnable {
         }
     }
 
+    /**
+     * Return the keyboard handler
+     */
     public KeyboardHandler getKeyboardHandler() {
         return keyboardHandler;
     }
 
+    /**
+     *Changes the panel title
+     */
     public void changePanelTitle(String title) {
         window.setComponent(mainPanel.withBorder(Borders.singleLine(title)));
     }
 
+    /**
+     * Returns the screen
+     */
     public Screen getScreen() {
         return screen;
     }
