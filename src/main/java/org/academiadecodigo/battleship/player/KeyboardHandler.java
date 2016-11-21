@@ -10,7 +10,7 @@ import java.io.IOException;
 public class KeyboardHandler implements Runnable {
 
     /**
-     * Java library
+     * Lanterna object
      */
     private Lanterna lanterna;
 
